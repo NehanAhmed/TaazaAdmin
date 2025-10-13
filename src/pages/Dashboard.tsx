@@ -15,7 +15,9 @@ import { Label } from '../components/ui/label';
 import { Input } from '../components/ui/input';
 import { Textarea } from '../components/ui/textarea';
 import Loader from '../components/Loader';
-import { MultiStepLoader } from '../components/ui/multi-step-loader';
+import { LoaderFiveLoader } from '../components/ui/LoaderButton';
+import { useNavigate } from 'react-router';
+// import { MultiStepLoader } from '../components/ui/multi-step-loader';
 
 export default function Dashboard() {
   const [title, setTitle] = useState('')
@@ -25,7 +27,7 @@ export default function Dashboard() {
   const [response, setResponse] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
+  const navigate = useNavigate();
   const handleTest = async () => {
     setLoading(true);
     setError('');
@@ -47,6 +49,7 @@ export default function Dashboard() {
       setError('');
       setLoading(false);
       console.log('✅ AI Response received!');
+      navigate(`/recipe/${result}`);
     } catch (err) {
       if (err instanceof AIRequestError) {
         setError(err.message);
@@ -130,10 +133,10 @@ export default function Dashboard() {
     text: "Ready to serve!",
   },
 ];
+
   return (
-    <div className="min-h-screen bg-background w-full">
-      {loading && <MultiStepLoader duration={80000} loadingStates={loadingStates} loading={loading} />}
-      {/* Header */}
+    <div className={`min-h-screen bg-background w-full ${loading ? 'blur-sm pointer-events-none select-none' : ''} transition-all`}>
+    {/* Header */}
       <header className="w-[76rem] m-auto border-b border-border bg-card rounded-2xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
@@ -232,9 +235,16 @@ export default function Dashboard() {
 
               <div className="flex gap-3 pt-2">
 
-                <Button onClick={handleTest} className="px-7 py-6 bg-secondary text-secondary-foreground rounded-lg font-semibold text-xl hover:opacity-90 transition-opacity border border-border flex items-center gap-2">
-                  <Sparkles className="w-4 h-4" />
-                  Generate with AI
+                <Button disabled={loading} onClick={handleTest} className={`px-7 py-6 bg-secondary text-secondary-foreground rounded-lg font-semibold text-xl hover:opacity-90 transition-opacity border border-border flex items-center gap-2 ${loading ? 'cursor-not-allowed opacity-70' : ''}`}>
+                  {loading ? (
+                    <LoaderFiveLoader />  
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4" />
+                      Generate with AI
+                    </>
+                  )}
+
                 </Button>
               </div>
             </div>

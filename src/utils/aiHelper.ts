@@ -1,5 +1,8 @@
 // utils/aiHelper.ts
 
+import { createRecipe } from "../appwrite/dbHelper";
+import { getUserDetails } from "../hooks/getUserDetails";
+
 interface AIResponse {
   choices: Array<{
     message: {
@@ -65,10 +68,22 @@ function sanitizePrompt(prompt: string): string {
   return cleaned;
 }
 
+async function getUserId(): Promise<string | undefined> {
+  try {
+    const details = await getUserDetails();
+    if (!details) {
+      return undefined;
+    }
+    return details.$id;
+  } catch (error) {
+    console.error("Error fetching user details:", error);
+    return undefined;
+  }
+}
 /**
  * Makes a request to the AI API with retry logic
  */
-async function  makeAIRequest(
+async function makeAIRequest(
   prompt: string,
   retryCount: number = 0,
   maxRetries: number = 2
@@ -114,6 +129,7 @@ async function  makeAIRequest(
     if (!data.choices || !Array.isArray(data.choices) || data.choices.length === 0) {
       throw new AIRequestError("Invalid response structure from API");
     }
+  
 
     return data;
   } catch (error) {
@@ -132,6 +148,26 @@ async function  makeAIRequest(
     throw new AIRequestError("An unexpected error occurred");
   }
 }
+interface RecipeData {
+  userId: string;
+  title: string;
+  description: string;
+  serving: number;
+  difficulty: string;
+  aiResponse: string;
+}
+async function createRecipeInDB(
+  databaseId: string,
+  tableId: string,
+  data: RecipeData
+) {
+  try {
+    await createRecipe(databaseId, tableId, data)
+  } catch (error) {
+    console.error("Error creating recipe in DB:", error);
+    throw error;
+  }
+}
 
 /**
  * Main helper function to interact with AI API
@@ -147,7 +183,7 @@ export async function callAI(
 
   try {
     // Step 1: Sanitize input
-    onProgress?.(  "Validating input...");
+    onProgress?.("Validating input...");
     // If the caller provided an object, build a detailed prompt string similar to the server-side
     let promptString: string;
     if (typeof prompt === "string") {
@@ -168,7 +204,7 @@ export async function callAI(
 
     // Step 2: Make API request
     onProgress?.("Sending request to AI...");
-  const response = await makeAIRequest(sanitizedPrompt, 0, retries);
+    const response = await makeAIRequest(sanitizedPrompt, 0, retries);
 
     // Step 3: Extract and return the content
     onProgress?.("Processing response...");
@@ -177,7 +213,22 @@ export async function callAI(
     if (!content || typeof content !== "string") {
       throw new AIRequestError("Invalid content in response");
     }
-
+    const userPrompt = prompt
+    const aiResponse = content
+    const databaseId = import.meta.env.VITE_APPWRITE_DB_ID || "";
+    const tableId = import.meta.env.VITE_APPWRITE_RECIPES_TABLE_ID || "";
+   
+    const userId = await getUserId();
+    if (!userId) throw new AIRequestError("User ID not found");
+    const data = {
+      userId,
+      title: userPrompt.title || "Untitled Recipe",
+      description: userPrompt.description || "No description provided",
+      serving: userPrompt.serving || 1,
+      difficulty: userPrompt.difficulty || "Medium",
+      aiResponse: aiResponse
+    }
+    await createRecipeInDB(databaseId, tableId, data)
     onProgress?.("Complete");
     return content;
   } catch (error) {

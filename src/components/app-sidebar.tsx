@@ -54,7 +54,7 @@ const data = {
       title: "My recipes",
       url: "/my-recipes",
       icon: IconApps,
-    }, 
+    },
   ],
   navClouds: [
     {
