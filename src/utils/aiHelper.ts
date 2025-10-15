@@ -160,9 +160,15 @@ async function createRecipeInDB(
   databaseId: string,
   tableId: string,
   data: RecipeData
-) {
+): Promise<any> {
   try {
-    await createRecipe(databaseId, tableId, data)
+    return await createRecipe(databaseId, tableId, data).then((res) => {
+      // console.log("Recipe created in DB:", res);
+      return res;
+    }).catch((err) => {
+      console.error("Error creating recipe in DB:", err);
+      throw err;
+    });
   } catch (error) {
     console.error("Error creating recipe in DB:", error);
     throw error;
@@ -228,9 +234,11 @@ export async function callAI(
       difficulty: userPrompt.difficulty || "Medium",
       aiResponse: aiResponse
     }
-    await createRecipeInDB(databaseId, tableId, data)
+    const responseOfCreationOfRecipeInDB = await createRecipeInDB(databaseId, tableId, data);
     onProgress?.("Complete");
-    return content;
+
+    return responseOfCreationOfRecipeInDB;
+
   } catch (error) {
     if (error instanceof AIRequestError) {
       throw error;

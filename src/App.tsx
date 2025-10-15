@@ -11,6 +11,8 @@ import Login from './components/Auth/Login'
 import Page404 from './pages/404'
 import { SettingsPage } from './pages/Settings'
 import Dashboard from './pages/Dashboard'
+import Recipe from './pages/Recipe'
+import RecipeDetail from './pages/RecipeDetail'
 const App = () => {
     return (
         <main className='w-full h-full'>
@@ -20,10 +22,11 @@ const App = () => {
                 <Route path="/" element={<Page />} >
                     <Route path='/settings' element={<SettingsPage />} />
                     <Route path='/' element={<Dashboard />} />
+                    <Route path="/recipe" element={<Recipe />} />
+                    <Route path="/recipe/:id" element={<RecipeDetail />} />
                 </Route>
                 <Route path="/auth/success" element={<Success />} />
                 <Route path="/auth/failure" element={<FailurePage />} />
-                
                 <Route path="*" element={<Page404 />} />
             </Routes>
         </main>

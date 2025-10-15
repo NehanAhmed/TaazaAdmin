@@ -42,14 +42,11 @@ export default function Dashboard() {
       } as const;
 
       const result = await callAI(promptObj);
-      console.log(result);
+      // console.log(result);
 
-      setResponse(result);
-      console.log(response);
       setError('');
       setLoading(false);
-      console.log('✅ AI Response received!');
-      navigate(`/recipe/${result}`);
+      navigate(`/recipe/${result.$id}`);
     } catch (err) {
       if (err instanceof AIRequestError) {
         setError(err.message);
@@ -224,9 +221,9 @@ export default function Dashboard() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-40">
                       <DropdownMenuRadioGroup value={difficulty} onValueChange={(val) => setDifficulty(val)}>
-                        <DropdownMenuRadioItem value="Easy">Easy</DropdownMenuRadioItem>
-                        <DropdownMenuRadioItem value="Medium">Medium</DropdownMenuRadioItem>
-                        <DropdownMenuRadioItem value="Hard">Hard</DropdownMenuRadioItem>
+                        <DropdownMenuRadioItem value="easy">Easy</DropdownMenuRadioItem>
+                        <DropdownMenuRadioItem value="medium">Medium</DropdownMenuRadioItem>
+                        <DropdownMenuRadioItem value="hard">Hard</DropdownMenuRadioItem>
                       </DropdownMenuRadioGroup>
                     </DropdownMenuContent>
                   </DropdownMenu>
