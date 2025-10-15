@@ -2,6 +2,7 @@
 
 import { createRecipe } from "../appwrite/dbHelper";
 import { getUserDetails } from "../hooks/getUserDetails";
+import type { RecipeResponse } from "../types/recipe";
 
 interface AIResponse {
   choices: Array<{
@@ -184,13 +185,12 @@ async function createRecipeInDB(
 export async function callAI(
   prompt: object | string,
   options: AIHelperOptions = {}
-): Promise<string> {
+): Promise<RecipeResponse> {
   const { retries = 2, onProgress } = options;
 
   try {
-    // Step 1: Sanitize input
     onProgress?.("Validating input...");
-    // If the caller provided an object, build a detailed prompt string similar to the server-side
+    
     let promptString: string;
     if (typeof prompt === "string") {
       promptString = prompt;
@@ -201,43 +201,54 @@ export async function callAI(
       const servings = p.servings ?? "Any";
       const difficulty = p.difficulty || "Medium";
 
-      promptString = `\nYou are a MasterChef AI. Create a detailed recipe based on the following user input:\n\nTitle: ${title}\nDescription: ${desc}\nServings: ${servings}\nDifficulty: ${difficulty}\n\nProvide a complete recipe including:\n- Title\n- Short description\n- Ingredients (with measurements)\n- Step-by-step instructions\n- Optional tips or variations\n`.trim();
+      promptString = `You are a MasterChef AI. Create a detailed recipe based on the following user input:
+
+Title: ${title}
+Description: ${desc}
+Servings: ${servings}
+Difficulty: ${difficulty}
+
+Provide a complete recipe with all required fields in JSON format.`.trim();
     } else {
       throw new AIRequestError("Invalid prompt format");
     }
 
     const sanitizedPrompt = sanitizePrompt(promptString);
 
-    // Step 2: Make API request
     onProgress?.("Sending request to AI...");
     const response = await makeAIRequest(sanitizedPrompt, 0, retries);
 
-    // Step 3: Extract and return the content
     onProgress?.("Processing response...");
     const content = response.choices[0].message.content;
 
     if (!content || typeof content !== "string") {
       throw new AIRequestError("Invalid content in response");
     }
-    const userPrompt = prompt
-    const aiResponse = content
-    const databaseId = import.meta.env.VITE_APPWRITE_DB_ID || "";
-    const tableId = import.meta.env.VITE_APPWRITE_RECIPES_TABLE_ID || "";
-   
+
+    // Parse the JSON response
+    const recipeData: RecipeResponse = JSON.parse(content);
+
+    // Save to database
     const userId = await getUserId();
     if (!userId) throw new AIRequestError("User ID not found");
-    const data = {
+
+    const databaseId = import.meta.env.VITE_APPWRITE_DB_ID || "";
+    const tableId = import.meta.env.VITE_APPWRITE_RECIPES_TABLE_ID || "";
+
+    const dbData = {
       userId,
-      title: userPrompt.title || "Untitled Recipe",
-      description: userPrompt.description || "No description provided",
-      serving: userPrompt.serving || 1,
-      difficulty: userPrompt.difficulty || "Medium",
-      aiResponse: aiResponse
-    }
-    const responseOfCreationOfRecipeInDB = await createRecipeInDB(databaseId, tableId, data);
+      title: recipeData.title,
+      description: recipeData.slogan,
+      serving: typeof prompt === 'object' ? (prompt as any).servings : 1,
+      difficulty: typeof prompt === 'object' ? (prompt as any).difficulty : "Medium",
+      aiResponse: content, // Store the raw JSON response
+    };
+
+    await createRecipeInDB(databaseId, tableId, dbData);
+    
     onProgress?.("Complete");
 
-    return responseOfCreationOfRecipeInDB;
+    return recipeData;
 
   } catch (error) {
     if (error instanceof AIRequestError) {

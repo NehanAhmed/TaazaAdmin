@@ -171,19 +171,147 @@ Provide a complete recipe including:
     const timeout = setTimeout(() => controller.abort(), 30000);
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
-        'X-Title': process.env.NEXT_PUBLIC_SITE_NAME || 'TaazaChef',
+  method: 'POST',
+  headers: {
+    Authorization: `Bearer ${apiKey}`,
+    'Content-Type': 'application/json',
+    'HTTP-Referer': process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+    'X-Title': process.env.NEXT_PUBLIC_SITE_NAME || 'TaazaChef',
+  },
+  body: JSON.stringify({
+    model: '@preset/taaza-chef',
+    messages: [{ role: 'user', content: finalPrompt }],
+    response_format: {
+      type: 'json_schema',
+      json_schema: {
+        name: 'recipe_response',
+        strict: true,
+        schema: {
+          type: 'object',
+          properties: {
+            title: {
+              type: 'string',
+              description: 'The name of the recipe',
+            },
+            slogan: {
+              type: 'string',
+              description: 'A catchy 1-2 line description or tagline for the recipe',
+            },
+            ingredients: {
+              type: 'array',
+              description: 'List of ingredients with measurements',
+              items: {
+                type: 'object',
+                properties: {
+                  name: {
+                    type: 'string',
+                    description: 'Name of the ingredient',
+                  },
+                  amount: {
+                    type: 'string',
+                    description: 'Measurement amount (e.g., "2 cups", "1 tbsp")',
+                  },
+                  notes: {
+                    type: 'string',
+                    description: 'Optional notes about the ingredient (e.g., "finely chopped", "room temperature")',
+                  },
+                },
+                required: ['name', 'amount'],
+                additionalProperties: false,
+              },
+            },
+            instructions: {
+              type: 'array',
+              description: 'Step-by-step cooking instructions',
+              items: {
+                type: 'object',
+                properties: {
+                  step: {
+                    type: 'number',
+                    description: 'Step number',
+                  },
+                  instruction: {
+                    type: 'string',
+                    description: 'Detailed instruction for this step',
+                  },
+                },
+                required: ['step', 'instruction'],
+                additionalProperties: false,
+              },
+            },
+            proTips: {
+              type: 'array',
+              description: 'Professional tips or useful cooking advice',
+              items: {
+                type: 'string',
+                description: 'A single pro tip or useful advice',
+              },
+            },
+            cookingTime: {
+              type: 'object',
+              description: 'Time breakdown for the recipe',
+              properties: {
+                prep: {
+                  type: 'number',
+                  description: 'Preparation time in minutes',
+                },
+                cook: {
+                  type: 'number',
+                  description: 'Cooking time in minutes',
+                },
+                total: {
+                  type: 'number',
+                  description: 'Total time in minutes',
+                },
+              },
+              required: ['prep', 'cook', 'total'],
+              additionalProperties: false,
+            },
+            nutrition: {
+              type: 'object',
+              description: 'Estimated nutritional information per serving',
+              properties: {
+                calories: {
+                  type: 'number',
+                  description: 'Calories per serving',
+                },
+                protein: {
+                  type: 'number',
+                  description: 'Protein in grams',
+                },
+                carbs: {
+                  type: 'number',
+                  description: 'Carbohydrates in grams',
+                },
+                fat: {
+                  type: 'number',
+                  description: 'Fat in grams',
+                },
+                fiber: {
+                  type: 'number',
+                  description: 'Fiber in grams',
+                },
+              },
+              required: ['calories', 'protein', 'carbs', 'fat'],
+              additionalProperties: false,
+            },
+          },
+          required: [
+            'title',
+            'slogan',
+            'ingredients',
+            'instructions',
+            'proTips',
+            'cookingTime',
+            'nutrition',
+          ],
+          additionalProperties: false,
+        },
       },
-      body: JSON.stringify({
-        model: '@preset/taaza-chef',
-        messages: [{ role: 'user', content: finalPrompt }],
-      }),
-      signal: controller.signal,
-    });
+    },
+  }),
+  signal: controller.signal,
+});
 
     clearTimeout(timeout);
 
