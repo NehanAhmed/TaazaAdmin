@@ -6,6 +6,7 @@ import { WobbleCard } from '../components/ui/wobble-card';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../components/ui/dropdown-menu';
 import { getAllRecipes } from '../appwrite/dbHelper';
 import { th } from 'zod/v4/locales';
+import RecipeCard from '../components/ui/RecipeCard';
 const Recipe = () => {
     useEffect(() => {
         fetchRecipe();
@@ -26,7 +27,31 @@ const Recipe = () => {
     const { id } = useParams();
 
     // Sample recipe data - replace with your actual DB data
-    const [recipes, setRecipes] = useState([]);
+    const [recipes, setRecipes] = useState([
+        {
+            title: 'pehla title',
+            desc: 'faltu desc ha ya',
+            time: "2min",
+            serving: "2",
+            difficulty: "easy"
+        },
+        {
+            title: 'pehla title',
+            desc: 'faltu desc ha ya',
+            time: "2min",
+            serving: "2",
+            difficulty: "easy"
+        }
+        ,
+        {
+            title: 'pehla title',
+            desc: 'faltu desc ha ya',
+            time: "2min",
+            serving: "2",
+            difficulty: "easy"
+        }
+        ,
+    ]);
 
 
     const [openDropdown, setOpenDropdown] = useState(null);
@@ -118,108 +143,7 @@ const Recipe = () => {
                 {/* Recipe Cards Grid */}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    {recipes.map((recipe) => (
-
-                        <WobbleCard key={recipe.$id} className='z-0 p-4 h-[440px] bg-card ' containerClassName='z-0 p-0 bg-card border border-border rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group'>
-
-                            {/* Image Container */}
-                            <div className="w-full rounded-lg relative h-48 overflow-hidden bg-muted">
-                                <img
-                                    src='/public/Images/random_photos(1).jpg'
-                                    alt={recipe.title}
-                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                />
-
-                                {/* Overlay Actions */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                                {/* Top Actions */}
-                                <div className="absolute top-3 right-3 flex gap-2">
-                                    <Button
-                                        onClick={() => toggleFavorite(recipe.id)}
-                                        className={`p-2 rounded-full backdrop-blur-sm transition-all duration-200 ${recipe.isFavorite
-                                            ? 'bg-destructive text-destructive-foreground'
-                                            : 'bg-background/80 text-foreground hover:bg-background'
-                                            }`}
-                                    >
-                                        <Heart
-                                            className="w-4 h-4"
-                                            fill={recipe.isFavorite ? 'currentColor' : 'none'}
-                                        />
-                                    </Button>
-
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button className="p-2 rounded-full backdrop-blur-sm bg-background/80 text-foreground hover:bg-background transition-colors">
-
-                                                <MoreVertical className="w-4 h-4" />
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end" className="w-40 bg-card border border-border">
-                                            <DropdownMenuItem onClick={() => handleEdit(recipe.id)} className="cursor-pointer hover:bg-secondary/10">
-                                                <Edit className="w-4 h-4 mr-2" />
-                                                Edit
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => handleDelete(recipe.id)} className="cursor-pointer hover:bg-destructive/10 text-destructive">
-                                                <Trash2 className="w-4 h-4 mr-2" />
-                                                Delete
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                </div>
-
-                                {/* Difficulty Badge */}
-                                <div className="absolute top-3 left-3">
-                                    <span className={`px-3 py-1 rounded-full text-xs font-semibold border backdrop-blur-sm ${getDifficultyColor(recipe.difficulty)}`}>
-                                        {recipe.difficulty}
-                                    </span>
-                                </div>
-                            </div>
-
-                            {/* Content */}
-                            <div className="p-5 z-50">
-                                <h3 className="text-lg font-bold text-card-foreground mb-2 line-clamp-1">
-                                    {recipe.title}
-                                </h3>
-
-                                <p className="text-sm text-muted-foreground mb-4 line-clamp-2 leading-relaxed">
-                                    {recipe.description}
-                                </p>
-
-                                {/* Recipe Meta Info */}
-                                <div className="flex items-center gap-4 mb-4 text-sm">
-                                    <div className="flex items-center gap-1.5 text-muted-foreground">
-                                        <Clock className="w-4 h-4" />
-                                        <span>{recipe.prepTime}</span>
-                                    </div>
-
-                                    <div className="flex items-center gap-1.5 text-muted-foreground">
-                                        <Users className="w-4 h-4" />
-                                        <span>{recipe.servings} servings</span>
-                                    </div>
-                                </div>
-
-                                {/* Action Buttons */}
-                                <div className="flex gap-2">
-                                    <Link to={recipe.$id} className="flex-1 z-100">
-                                        <Button className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 py-2.5 rounded-lg font-poppins text-sm font-semibold  transition-colors cursor-pointer">
-                                            View Recipe
-                                        </Button>
-                                    </Link>
-
-                                    <Button className="z-100 p-2.5 border border-border hover:bg-secondary hover:text-secondary-foreground rounded-lg transition-colors">
-                                        <Share2 className="w-4 h-4" />
-                                    </Button>
-
-                                    <Button className="z-100 p-2.5 border border-border hover:bg-secondary hover:text-accent-foreground rounded-lg transition-colors">
-                                        <Bookmark className="w-4 h-4" />
-                                    </Button>
-                                </div>
-                            </div>
-
-                        </WobbleCard>
-
-                    ))}
+                    <RecipeCard data={recipes} />
                 </div>
 
                 {/* Empty State (shows when no recipes) */}

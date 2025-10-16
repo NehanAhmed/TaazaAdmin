@@ -130,7 +130,7 @@ async function makeAIRequest(
     if (!data.choices || !Array.isArray(data.choices) || data.choices.length === 0) {
       throw new AIRequestError("Invalid response structure from API");
     }
-  
+
 
     return data;
   } catch (error) {
@@ -190,7 +190,7 @@ export async function callAI(
 
   try {
     onProgress?.("Validating input...");
-    
+
     let promptString: string;
     if (typeof prompt === "string") {
       promptString = prompt;
@@ -244,11 +244,11 @@ Provide a complete recipe with all required fields in JSON format.`.trim();
       aiResponse: content, // Store the raw JSON response
     };
 
-    await createRecipeInDB(databaseId, tableId, dbData);
-    
+    const responseOfRecipeInsertionInDB = await createRecipeInDB(databaseId, tableId, dbData);
+
     onProgress?.("Complete");
 
-    return recipeData;
+    return responseOfRecipeInsertionInDB;
 
   } catch (error) {
     if (error instanceof AIRequestError) {

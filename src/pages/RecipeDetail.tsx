@@ -7,10 +7,14 @@ import {
 } from 'lucide-react';
 const RecipeDetail = () => {
     const [Recipe, setRecipe] = useState([])
+    const [aiResponse, setaiResponse] = useState([])
     const recipeId = useParams()
     const { id } = recipeId;
     useEffect(() => {
         fetchRecipe()
+        console.log(Recipe);
+        
+        
     }, [])
 
     const fetchRecipe = async () => {
@@ -19,19 +23,25 @@ const RecipeDetail = () => {
 
         try {
             await getRecipe(DatabaseId, RecipeTableId, id).then((res) => {
-                setRecipe(res.rows)
+                // console.log(res.rows[0].aiResponse);
 
+                const recipes = res.rows[0]
+                const aiResponseFrom = res.rows[0].aiResponse
+                setaiResponse(aiResponseFrom)
+                setRecipe(recipes)
+                
+                
             })
         } catch (error) {
 
         }
     }
     const recipe = {
-        id: 1,
-        title: "Creamy Tuscan Chicken",
-        description: "A rich and creamy Italian-inspired chicken dish with sun-dried tomatoes and spinach in a garlic parmesan sauce. This restaurant-quality meal comes together in just 45 minutes.",
-        difficulty: "Medium",
-        servings: 4,
+        id: Recipe.$id,
+        title: Recipe.title,
+        description:Recipe.description,
+        difficulty: Recipe.difficulty,
+        servings: Recipe.servings,
         prepTime: "15 min",
         cookTime: "30 min",
         totalTime: "45 min",
@@ -43,7 +53,7 @@ const RecipeDetail = () => {
         datePublished: "March 15, 2024",
 
         ingredients: [
-            { id: 1, item: "Chicken breasts, boneless and skinless", amount: "4 pieces (1.5 lbs)" },
+            { id: 1, item: "    Chicken breasts, boneless and skinless", amount: "4 pieces (1.5 lbs)" },
             { id: 2, item: "Olive oil", amount: "2 tablespoons" },
             { id: 3, item: "Garlic cloves, minced", amount: "4 cloves" },
             { id: 4, item: "Sun-dried tomatoes, chopped", amount: "1/2 cup" },
@@ -111,7 +121,7 @@ const RecipeDetail = () => {
     const [checkedIngredients, setCheckedIngredients] = useState([]);
 
     const getDifficultyColor = (difficulty) => {
-        switch (difficulty.toLowerCase()) {
+        switch (difficulty) {
             case 'easy':
                 return 'bg-secondary/20 text-secondary-foreground border-secondary/30';
             case 'medium':
@@ -142,11 +152,14 @@ const RecipeDetail = () => {
 
     return (
         <div className="min-h-screen bg-background">
+            <div>
+                {aiResponse}
+            </div>
             {/* Hero Section */}
             <div className="relative h-[500px] bg-muted overflow-hidden">
                 <img
-                    src={recipe.image}
-                    alt={recipe.title}
+                    src='/Images/random_photos(1).jpg'
+                    alt={Recipe.title}
                     className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
@@ -198,22 +211,22 @@ const RecipeDetail = () => {
                             <div className="flex items-start justify-between gap-4 mb-4">
                                 <div className="flex-1">
                                     <div className="flex items-center gap-3 mb-3">
-                                        <span className={`px-4 py-1.5 rounded-full text-sm font-semibold border ${getDifficultyColor(recipe.difficulty)}`}>
-                                            {recipe.difficulty}
+                                        <span className={`px-4 py-1.5 rounded-full text-sm font-semibold border ${getDifficultyColor(Recipe.difficulty)}`}>
+                                            {Recipe.difficulty}
                                         </span>
                                         <div className="flex items-center gap-1 text-secondary">
                                             <Star className="w-5 h-5 fill-current" />
-                                            <span className="font-semibold text-foreground">{recipe.rating}</span>
-                                            <span className="text-muted-foreground text-sm">({recipe.reviews} reviews)</span>
+                                            {/* <span className="font-semibold text-foreground">{recipe.rating}</span> */}
+                                            {/* <span className="text-muted-foreground text-sm">({recipe.reviews} reviews)</span> */}
                                         </div>
                                     </div>
 
                                     <h1 className="text-4xl font-bold text-card-foreground mb-3">
-                                        {recipe.title}
+                                        {Recipe.title}
                                     </h1>
 
                                     <p className="text-muted-foreground text-lg leading-relaxed">
-                                        {recipe.description}
+                                        {Recipe.description}
                                     </p>
                                 </div>
                             </div>
@@ -225,7 +238,7 @@ const RecipeDetail = () => {
                                     </div>
                                     <div>
                                         <p className="text-sm text-muted-foreground">Recipe by</p>
-                                        <p className="font-semibold text-card-foreground">{recipe.author}</p>
+                                        {/* <p className="font-semibold text-card-foreground">{recipe.author}</p> */}
                                     </div>
                                 </div>
 
@@ -233,7 +246,7 @@ const RecipeDetail = () => {
 
                                 <div>
                                     <p className="text-sm text-muted-foreground">Published</p>
-                                    <p className="font-semibold text-card-foreground">{recipe.datePublished}</p>
+                                    <p className="font-semibold text-card-foreground">{Recipe.$createdAt}</p>
                                 </div>
                             </div>
                         </div>
@@ -346,7 +359,7 @@ const RecipeDetail = () => {
                         </div>
 
                         {/* Tips Section */}
-                        <div className="bg-card border border-border rounded-2xl p-8 shadow-lg">
+                        {/* <div className="bg-card border border-border rounded-2xl p-8 shadow-lg">
                             <h2 className="text-2xl font-bold text-card-foreground mb-6">
                                 Pro Tips
                             </h2>
@@ -361,7 +374,7 @@ const RecipeDetail = () => {
                                     </div>
                                 ))}
                             </div>
-                        </div>
+                        </div> */}
                     </div>
 
                     {/* Sidebar */}
@@ -377,7 +390,7 @@ const RecipeDetail = () => {
                                     </div>
                                     <div>
                                         <p className="text-xs text-muted-foreground">Prep Time</p>
-                                        <p className="font-semibold text-card-foreground">{recipe.prepTime}</p>
+                                        {/* <p className="font-semibold text-card-foreground">{recipe.prepTime}</p> */}
                                     </div>
                                 </div>
 
@@ -387,7 +400,7 @@ const RecipeDetail = () => {
                                     </div>
                                     <div>
                                         <p className="text-xs text-muted-foreground">Cook Time</p>
-                                        <p className="font-semibold text-card-foreground">{recipe.cookTime}</p>
+                                        {/* <p className="font-semibold text-card-foreground">{recipe.cookTime}</p> */}
                                     </div>
                                 </div>
 
@@ -397,7 +410,7 @@ const RecipeDetail = () => {
                                     </div>
                                     <div>
                                         <p className="text-xs text-muted-foreground">Total Time</p>
-                                        <p className="font-semibold text-card-foreground">{recipe.totalTime}</p>
+                                        {/* <p className="font-semibold text-card-foreground">{recipe.totalTime}</p> */}
                                     </div>
                                 </div>
 
@@ -407,7 +420,7 @@ const RecipeDetail = () => {
                                     </div>
                                     <div>
                                         <p className="text-xs text-muted-foreground">Servings</p>
-                                        <p className="font-semibold text-card-foreground">{recipe.servings} people</p>
+                                        <p className="font-semibold text-card-foreground">{Recipe.serving} people</p>
                                     </div>
                                 </div>
                             </div>
