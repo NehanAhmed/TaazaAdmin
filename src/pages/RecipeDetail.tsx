@@ -1,24 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router';
+import { Link, useParams } from 'react-router';
 import { getRecipe } from '../appwrite/dbHelper';
 import {
     ChefHat, Clock, Users, Flame, Heart, Share2, Bookmark,
-    ArrowLeft, Printer, Star, CheckCircle2, Circle, Plus, Minus
+    ArrowLeft, Printer, Star, CheckCircle2, Circle, Plus, Minus,
+    Ellipsis,
+    Trash
 } from 'lucide-react';
-
+import { LoaderOne } from '../components/ui/loader';
+import { Button } from '../components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '../components/ui/dropdown-menu';
 const RecipeDetail = () => {
     const [Recipe, setRecipe] = useState({});
     const [aiResponse, setaiResponse] = useState(null);
     const recipeId = useParams();
     const { id } = recipeId;
-    
+    const [loading, setloading] = useState(false)
     const [isFavorite, setIsFavorite] = useState(false);
     const [isBookmarked, setIsBookmarked] = useState(false);
     const [servings, setServings] = useState(4);
     const [checkedSteps, setCheckedSteps] = useState([]);
     const [checkedIngredients, setCheckedIngredients] = useState([]);
-
+    const [isVerifiedForPublishingInLibrary, setisVerifiedForPublishingInLibrary] = useState(true)
     useEffect(() => {
+        setloading(true)
         fetchRecipe();
     }, []);
 
@@ -29,12 +34,12 @@ const RecipeDetail = () => {
             const res = await getRecipe(DatabaseId, RecipeTableId, id);
             const recipes = res.rows[0];
             const aiResponseFrom = res.rows[0].aiResponse;
-            
+            setloading(false)
             // Parse AI response if it's a string
-            const parsedAiResponse = typeof aiResponseFrom === 'string' 
-                ? JSON.parse(aiResponseFrom) 
+            const parsedAiResponse = typeof aiResponseFrom === 'string'
+                ? JSON.parse(aiResponseFrom)
                 : aiResponseFrom;
-            
+
             setaiResponse(parsedAiResponse);
             setRecipe(recipes);
             setServings(recipes.servings || 4);
@@ -56,6 +61,10 @@ const RecipeDetail = () => {
         }
     };
 
+    const handlePrint = () => {
+        window.print()
+    }
+
     const adjustServings = (amount) => {
         const newServings = Math.max(1, servings + amount);
         setServings(newServings);
@@ -73,8 +82,8 @@ const RecipeDetail = () => {
         );
     };
 
-    return (
-        <div className="min-h-screen bg-background">
+    return loading ? <LoadingState /> : (
+        <div className="min-h-screen bg-background font-poppins">
             {/* Hero Section */}
             <div className="relative h-[500px] bg-muted overflow-hidden">
                 <img
@@ -83,43 +92,71 @@ const RecipeDetail = () => {
                     className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-                
+
                 {/* Back Button */}
-                <button className="absolute top-6 left-6 p-3 bg-background/90 backdrop-blur-sm hover:bg-background rounded-full text-foreground transition-colors shadow-lg">
-                    <ArrowLeft className="w-5 h-5" />
-                </button>
+                <Link to='/recipes'>
                 
+                <Button className="absolute top-6 left-6 p-3 bg-background/90 backdrop-blur-sm hover:bg-background rounded-full text-foreground transition-colors shadow-lg">
+                    <ArrowLeft className="w-5 h-5" />
+                </Button>
+                </Link>
+                
+
                 {/* Action Buttons */}
-                <div className="absolute top-6 right-6 flex gap-3">
-                    <button
-                        onClick={() => setIsFavorite(!isFavorite)}
-                        className={`p-3 rounded-full backdrop-blur-sm transition-all shadow-lg ${isFavorite
-                            ? 'bg-destructive text-destructive-foreground'
-                            : 'bg-background/90 hover:bg-background text-foreground'
-                        }`}
-                    >
-                        <Heart className="w-5 h-5" fill={isFavorite ? 'currentColor' : 'none'} />
-                    </button>
-                    <button
-                        onClick={() => setIsBookmarked(!isBookmarked)}
-                        className={`p-3 rounded-full backdrop-blur-sm transition-all shadow-lg ${isBookmarked
-                            ? 'bg-primary text-primary-foreground'
-                            : 'bg-background/90 hover:bg-background text-foreground'
-                        }`}
-                    >
-                        <Bookmark className="w-5 h-5" fill={isBookmarked ? 'currentColor' : 'none'} />
-                    </button>
-                    <button className="p-3 rounded-full bg-background/90 backdrop-blur-sm hover:bg-background text-foreground transition-colors shadow-lg">
-                        <Share2 className="w-5 h-5" />
-                    </button>
-                    <button className="p-3 rounded-full bg-background/90 backdrop-blur-sm hover:bg-background text-foreground transition-colors shadow-lg">
-                        <Printer className="w-5 h-5" />
-                    </button>
-                </div>
+                {isVerifiedForPublishingInLibrary && (
+                    <div className="absolute top-6 right-6 flex gap-3">
+                        <Button
+                            onClick={() => setIsFavorite(!isFavorite)}
+                            className={`p-3 rounded-full backdrop-blur-sm transition-all shadow-lg ${isFavorite
+                                ? 'bg-destructive text-destructive-foreground'
+                                : 'bg-background/90 hover:bg-background text-foreground'
+                                }`}
+                        >
+                            <Heart className="w-5 h-5" fill={isFavorite ? 'currentColor' : 'none'} />
+                        </Button>
+                        <Button
+                            onClick={() => setIsBookmarked(!isBookmarked)}
+                            className={`p-3 rounded-full backdrop-blur-sm transition-all shadow-lg ${isBookmarked
+                                ? 'bg-primary text-primary-foreground'
+                                : 'bg-background/90 hover:bg-background text-foreground'
+                                }`}
+                        >
+                            <Bookmark className="w-5 h-5" fill={isBookmarked ? 'currentColor' : 'none'} />
+                        </Button>
+
+                        <Button onClick={handlePrint} className="p-3 rounded-full bg-background/90 backdrop-blur-sm hover:bg-background text-foreground transition-colors shadow-lg">
+                            <Printer className="w-5 h-5" />
+                        </Button>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger>
+                                <Button className='p-3 rounded-full bg-background/90 backdrop-blur-sm hover:bg-background text-foreground transition-colors shadow-lg'>
+                                    <Ellipsis />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align='left'>
+                                <DropdownMenuGroup>
+                                    <DropdownMenuItem className='flex justify-around' variant='destructive'>
+                                        Delete
+                                        <Trash />
+                                    </DropdownMenuItem>
+                                </DropdownMenuGroup>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+
+                    </div>
+                )}
+
+                {!isVerifiedForPublishingInLibrary && (
+                    <Button size={'lg'} variant="default">
+                        Publish To Library
+                    </Button>
+                )}
+
+
             </div>
 
             {/* Main Content */}
-            <div className="max-w-7xl mx-auto px-6 -mt-32 relative z-10">
+            <div className="max-w-7xl mx-auto px-6 -mt-32 relative z-10 font-poppins">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Main Column */}
                     <div className="lg:col-span-2">
@@ -172,24 +209,7 @@ const RecipeDetail = () => {
                                     </div>
                                     Ingredients
                                 </h2>
-                                <div className="flex items-center gap-2 bg-muted rounded-lg p-1">
-                                    <button
-                                        onClick={() => adjustServings(-1)}
-                                        className="p-2 hover:bg-background rounded transition-colors"
-                                        disabled={servings <= 1}
-                                    >
-                                        <Minus className="w-4 h-4" />
-                                    </button>
-                                    <span className="px-4 py-1 font-semibold text-foreground">
-                                        {servings} servings
-                                    </span>
-                                    <button
-                                        onClick={() => adjustServings(1)}
-                                        className="p-2 hover:bg-background rounded transition-colors"
-                                    >
-                                        <Plus className="w-4 h-4" />
-                                    </button>
-                                </div>
+
                             </div>
                             <div className="space-y-3">
                                 {aiResponse?.ingredients?.map((ingredient, index) => (
@@ -241,7 +261,7 @@ const RecipeDetail = () => {
                                                 <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${checkedSteps.includes(index)
                                                     ? 'bg-primary text-primary-foreground'
                                                     : 'bg-muted text-muted-foreground group-hover:bg-primary/20 group-hover:text-primary'
-                                                }`}>
+                                                    }`}>
                                                     {checkedSteps.includes(index) ? (
                                                         <CheckCircle2 className="w-5 h-5" />
                                                     ) : (
@@ -372,4 +392,11 @@ const RecipeDetail = () => {
     );
 };
 
+const LoadingState = () => {
+    return (
+        <div className='w-full h-screen m-auto'>
+            <LoaderOne />
+        </div>
+    )
+}
 export default RecipeDetail;
