@@ -16,74 +16,21 @@ const Recipe = () => {
             const DatabaseId = import.meta.env.VITE_APPWRITE_DB_ID;
             const RecipeTableID = import.meta.env.VITE_APPWRITE_RECIPES_TABLE_ID;
             await getAllRecipes(DatabaseId, RecipeTableID).then((res) => {
-                const recipes = res.rows;
-                setRecipes(recipes);
-
+                const recipesData = res.rows;
+                setRecipes(recipesData);
+                console.log(recipesData);
+                
+                
             })
         } catch (error) {
             throw error;
         }
     }
-    const { id } = useParams();
 
     // Sample recipe data - replace with your actual DB data
-    const [recipes, setRecipes] = useState([
-        {
-            title: 'pehla title',
-            desc: 'faltu desc ha ya',
-            time: "2min",
-            serving: "2",
-            difficulty: "easy"
-        },
-        {
-            title: 'pehla title',
-            desc: 'faltu desc ha ya',
-            time: "2min",
-            serving: "2",
-            difficulty: "easy"
-        }
-        ,
-        {
-            title: 'pehla title',
-            desc: 'faltu desc ha ya',
-            time: "2min",
-            serving: "2",
-            difficulty: "easy"
-        }
-        ,
-    ]);
+    const [recipes, setRecipes] = useState([]);
 
 
-    const [openDropdown, setOpenDropdown] = useState(null);
-
-    const getDifficultyColor = (difficulty) => {
-        switch (difficulty.toLowerCase()) {
-            case 'easy':
-                return 'bg-secondary/20 text-secondary-foreground border-secondary/30';
-            case 'medium':
-                return 'bg-primary/20 text-primary-foreground border-primary/30';
-            case 'hard':
-                return 'bg-destructive/20 text-destructive-foreground border-destructive/30';
-            default:
-                return 'bg-muted text-muted-foreground border-border';
-        }
-    };
-
-    const toggleFavorite = (id) => {
-        setRecipes(recipes.map(recipe =>
-            recipe.id === id ? { ...recipe, isFavorite: !recipe.isFavorite } : recipe
-        ));
-    };
-
-    const handleDelete = (id) => {
-        setRecipes(recipes.filter(recipe => recipe.id !== id));
-        setOpenDropdown(null);
-    };
-
-    const handleEdit = (id) => {
-        console.log('Edit recipe:', id);
-        setOpenDropdown(null);
-    };
 
     return (
         <div className="font-poppins min-h-screen bg-background p-6">
@@ -143,7 +90,7 @@ const Recipe = () => {
                 {/* Recipe Cards Grid */}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    <RecipeCard data={recipes} />
+                    <RecipeCard recipeData={recipes} />
                 </div>
 
                 {/* Empty State (shows when no recipes) */}

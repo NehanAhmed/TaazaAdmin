@@ -52,7 +52,7 @@ const data = {
     },
     {
       title: "My recipes",
-      url: "/my-recipes",
+      url: "/recipes",
       icon: IconApps,
     },
   ],
