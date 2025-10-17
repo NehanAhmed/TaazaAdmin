@@ -8,17 +8,20 @@ import { getAllRecipes } from '../appwrite/dbHelper';
 import { th } from 'zod/v4/locales';
 import RecipeCard from '../components/ui/RecipeCard';
 const Recipe = () => {
+    const [Loading, setLoading] = useState(false)
     useEffect(() => {
+        
         fetchRecipe();
     }, [])
     const fetchRecipe = async () => {
+        setLoading(true)
         try {
             const DatabaseId = import.meta.env.VITE_APPWRITE_DB_ID;
             const RecipeTableID = import.meta.env.VITE_APPWRITE_RECIPES_TABLE_ID;
             await getAllRecipes(DatabaseId, RecipeTableID).then((res) => {
                 const recipesData = res.rows;
                 setRecipes(recipesData);
-                console.log(recipesData);
+                setLoading(false)
                 
                 
             })
@@ -90,7 +93,7 @@ const Recipe = () => {
                 {/* Recipe Cards Grid */}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    <RecipeCard recipeData={recipes} />
+                    <RecipeCard recipes={recipes} Loading={Loading}/>
                 </div>
 
                 {/* Empty State (shows when no recipes) */}

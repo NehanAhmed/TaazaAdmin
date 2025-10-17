@@ -13,6 +13,7 @@ import { SettingsPage } from './pages/Settings'
 import Dashboard from './pages/Dashboard'
 import Recipe from './pages/Recipe'
 import RecipeDetail from './pages/RecipeDetail'
+import RecipeExplorePage from './pages/ExploreRecipes'
 const App = () => {
     return (
         <main className='w-full h-full'>
@@ -24,6 +25,7 @@ const App = () => {
                     <Route path='/' element={<Dashboard />} />
                     <Route path="/recipes" element={<Recipe />} />
                     <Route path="/recipe/:id" element={<RecipeDetail />} />
+                    <Route path='/explore' element={<RecipeExplorePage />}/>
                 </Route>
                 <Route path="/auth/success" element={<Success />} />
                 <Route path="/auth/failure" element={<FailurePage />} />
