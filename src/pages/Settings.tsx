@@ -18,14 +18,17 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { User, Shield, Bell, CreditCard, Settings, Upload, Plus, Menu, X } from "lucide-react";
+import { User, Shield, Bell, CreditCard, Settings, Upload, Plus, Menu, X, SunMoon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTheme } from "next-themes";
 
 const sidebarItems = [
   { id: "profile", label: "Profile", icon: User },
   { id: "security", label: "Security", icon: Shield },
   { id: "notifications", label: "Notification", icon: Bell },
   { id: "billing", label: "Billing", icon: CreditCard },
+  { id: "theme", label: "Theme", icon: SunMoon },
+
   { id: "integrations", label: "Integration", icon: Settings }
 ];
 
@@ -114,6 +117,7 @@ const transactions = [
 export function SettingsPage() {
   const [activeSection, setActiveSection] = useState("profile");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { setTheme } = useTheme()
 
   const renderContent = () => {
     switch (activeSection) {
@@ -127,6 +131,8 @@ export function SettingsPage() {
         return <BillingSection />;
       case "integrations":
         return <IntegrationsSection />;
+      case "theme":
+        return <ThemeSection />
       default:
         return <ProfileSection />;
     }
@@ -686,6 +692,177 @@ function IntegrationsSection() {
             </CardContent>
           </Card>
         ))}
+      </div>
+    </div>
+  );
+}
+
+function ThemeSection() {
+  const [selectedTheme, setSelectedTheme] = useState("system");
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-semibold text-balance">Theme</h1>
+        <p className="text-muted-foreground mt-1">
+          Customize your interface appearance and visual preferences
+        </p>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Appearance</CardTitle>
+          <CardDescription>
+            Select your preferred theme mode for the interface
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <RadioGroup value={selectedTheme} onChange={(e)=>setSelectedTheme(e.target.value)} className="space-y-4">
+            <div className="flex items-start space-x-3">
+              <RadioGroupItem onClick={()=> setTheme("light")} value="light" id="light" className="mt-1" />
+              <div className="flex-1">
+                <Label htmlFor="light" className="font-medium">
+                  Light
+                </Label>
+                <p className="text-muted-foreground text-sm">
+                  Bright and clean interface optimized for daytime use
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-3">
+              <RadioGroupItem onClick={()=> setTheme("dark")} value="dark" id="dark" className="mt-1" />
+              <div className="flex-1">
+                <Label htmlFor="dark" className="font-medium">
+                  Dark
+                </Label>
+                <p className="text-muted-foreground text-sm">
+                  Easy on the eyes with reduced brightness for low-light environments
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-3">
+              <RadioGroupItem onClick={()=> setTheme("system")} value="system" id="system" className="mt-1" />
+              <div className="flex-1">
+                <Label htmlFor="system" className="font-medium">
+                  System
+                </Label>
+                <p className="text-muted-foreground text-sm">
+                  Automatically switch between light and dark based on your system preferences
+                </p>
+              </div>
+            </div>
+          </RadioGroup>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Accent Color</CardTitle>
+          <CardDescription>
+            Choose your preferred accent color for interactive elements
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-5 gap-3">
+            <button className="flex h-16 w-full items-center justify-center rounded-lg border-2 border-primary bg-[#00BCD4] hover:scale-105 transition-transform">
+              <div className="h-8 w-8 rounded-full bg-white/20" />
+            </button>
+            <button className="flex h-16 w-full items-center justify-center rounded-lg border-2 border-transparent bg-[#009688] hover:scale-105 transition-transform hover:border-primary">
+              <div className="h-8 w-8 rounded-full bg-white/20" />
+            </button>
+            <button className="flex h-16 w-full items-center justify-center rounded-lg border-2 border-transparent bg-[#4CAF50] hover:scale-105 transition-transform hover:border-primary">
+              <div className="h-8 w-8 rounded-full bg-white/20" />
+            </button>
+            <button className="flex h-16 w-full items-center justify-center rounded-lg border-2 border-transparent bg-[#8BC34A] hover:scale-105 transition-transform hover:border-primary">
+              <div className="h-8 w-8 rounded-full bg-white/20" />
+            </button>
+            <button className="flex h-16 w-full items-center justify-center rounded-lg border-2 border-transparent bg-[#CDDC39] hover:scale-105 transition-transform hover:border-primary">
+              <div className="h-8 w-8 rounded-full bg-white/20" />
+            </button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Display Settings</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-medium">Compact mode</h3>
+              <p className="text-muted-foreground text-sm">
+                Reduce spacing and padding for a more condensed interface
+              </p>
+            </div>
+            <Switch />
+          </div>
+
+          <Separator />
+
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-medium">High contrast</h3>
+              <p className="text-muted-foreground text-sm">
+                Increase contrast for better visibility and accessibility
+              </p>
+            </div>
+            <Switch />
+          </div>
+
+          <Separator />
+
+          <div className="space-y-2">
+            <Label htmlFor="fontSize">Font size</Label>
+            <Select defaultValue="medium">
+              <SelectTrigger id="fontSize">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="small">Small</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="large">Large</SelectItem>
+                <SelectItem value="xlarge">Extra Large</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Animation</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-medium">Enable animations</h3>
+              <p className="text-muted-foreground text-sm">
+                Show smooth transitions and motion effects throughout the interface
+              </p>
+            </div>
+            <Switch defaultChecked />
+          </div>
+
+          <Separator />
+
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-medium">Reduce motion</h3>
+              <p className="text-muted-foreground text-sm">
+                Minimize motion effects for users sensitive to animation
+              </p>
+            </div>
+            <Switch />
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="flex justify-end gap-3">
+        <Button variant="outline">Reset to default</Button>
+        <Button>Apply changes</Button>
       </div>
     </div>
   );

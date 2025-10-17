@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { ChefHat, Home, BookOpen, Heart, Clock, Settings, Sparkles, User, LogOut, Search, Plus, Library, ForkKnifeCrossedIcon, Loader } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from './ui/button';
 import { Label } from './ui/label';
 import { getAllRecipes } from '../appwrite/dbHelper';
 import { motion } from 'motion/react';
+import { logout } from '../appwrite/auth';
+import { toast } from 'sonner';
+import ThemeToggle from './ui/ThemeToggle';
 
 export default function RecipeSidebar() {
   const [activeItem, setActiveItem] = useState('home');
@@ -14,7 +17,17 @@ export default function RecipeSidebar() {
   useEffect(() => {
     getRecipeTitle()
   }, [])
+  const navigate = useNavigate()
+  const handleLogout = async () => {
+    try {
+      await logout().then(() => {
+        toast.success("Succesfully Logged Out!")
+        setTimeout(() => navigate('/login'), 3000)
+      })
+    } catch (error) {
 
+    }
+  }
   const getRecipeTitle = async () => {
     setrecipeLoading(true)
     const databaseId = import.meta.env.VITE_APPWRITE_DB_ID
@@ -37,8 +50,8 @@ export default function RecipeSidebar() {
   ];
 
   const bottomItems = [
-    { id: 'settings', icon: Settings, label: 'Settings' },
-    { id: 'profile', icon: User, label: 'Profile' },
+    { id: 'settings', icon: Settings, label: 'Settings', url: '/settings' },
+
   ];
 
   return (
@@ -158,7 +171,7 @@ export default function RecipeSidebar() {
           </div>
           <div className='ml-2 w-full'>
             {recipeLoading ? (
-              <p><Loader className='animate-spin'/></p>
+              <p><Loader className='animate-spin' /></p>
             ) : (
               <>
                 {recipes.map((val) => (
@@ -184,25 +197,34 @@ export default function RecipeSidebar() {
           const isActive = activeItem === item.id;
 
           return (
-            <button
-              key={item.id}
-              onClick={() => setActiveItem(item.id)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${isActive
-                ? 'bg-sidebar-accent text-sidebar-foreground'
-                : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground'
-                } ${isCollapsed ? 'justify-center' : ''}`}
-            >
-              <Icon className="w-5 h-5" />
-              {!isCollapsed && <span className="flex-1 text-left text-sm font-medium">{item.label}</span>}
-            </button>
+            <Link to={item.url}>
+
+              <button
+                key={item.id}
+                onClick={() => setActiveItem(item.id)}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${isActive
+                  ? 'bg-sidebar-accent text-sidebar-foreground'
+                  : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground'
+                  } ${isCollapsed ? 'justify-center' : ''}`}
+              >
+                <Icon className="w-5 h-5" />
+                {!isCollapsed && <span className="flex-1 text-left text-sm font-medium">{item.label}</span>}
+              </button>
+            </Link>
           );
         })}
 
         {!isCollapsed && (
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-destructive hover:bg-destructive/10 transition-all text-sm font-medium">
-            <LogOut className="w-5 h-5" />
-            <span>Sign Out</span>
-          </button>
+          <>
+
+            <button className="mt-3 w-full flex items-center gap-3 px-4 py-3 rounded-lg text-destructive hover:bg-destructive/10 transition-all text-sm font-medium">
+              <LogOut className="w-5 h-5" />
+              <span>Sign Out</span>
+            </button>
+            <button>
+              <ThemeToggle />
+            </button>
+          </>
         )}
       </div>
     </div>
