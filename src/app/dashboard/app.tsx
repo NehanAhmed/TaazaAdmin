@@ -1,4 +1,4 @@
-import { AppSidebar } from "../../components/app-sidebar"
+import RecipeSidebar from "../../components/app-sidebar"
 import { ChartAreaInteractive } from "../../components/chart-area-interactive"
 import { DataTable } from "../../components/data-table"
 import { SectionCards } from "../../components/section-cards"
@@ -14,19 +14,14 @@ import Layout from "../../pages/Layout"
 export default function Page() {
 
   return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
-        } as React.CSSProperties
-      }
-    >
-      <AppSidebar variant="inset" />
-      <SidebarInset>
-        <SiteHeader />
+     <div className="flex h-screen bg-background overflow-hidden">
+      {/* Sidebar */}
+      <RecipeSidebar />
+      
+      {/* Main Content Area */}
+      <main className="flex-1 overflow-y-auto">
         <Layout />
-      </SidebarInset>
-    </SidebarProvider>
+      </main>
+    </div>  
   )
 }
