@@ -70,16 +70,14 @@ export default function Dashboard() {
 
     try {
       await getAllRecipes(databaseId, recipeTableId).then((res) => {
-        const recipesData = res.rows
-        console.log(recipesData);
-
+        const recipesData: Object = res.rows
         setRecipes(recipesData)
       })
     } catch (error) {
 
     }
   }
-  const [recipes, setRecipes] = useState([]);
+  const [recipes, setRecipes] = useState<Object>([]);
 
 
 
@@ -122,7 +120,7 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className={`min-h-screen bg-background w-full ${loading ? 'blur-sm pointer-events-none select-none' : ''} transition-all`}>
+    <div className={`min-h-screen bg-background w-full  transition-all`}>
       {/* Header */}
       <header className="w-[76rem] m-auto border-b border-border bg-card rounded-2xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -163,6 +161,7 @@ export default function Dashboard() {
                   Recipe Name
                 </Label>
                 <Input
+                  disabled={loading}
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   type="text"
@@ -176,6 +175,7 @@ export default function Dashboard() {
                   Description
                 </Label>
                 <Textarea
+                  disabled={loading}
                   value={desc}
                   onChange={(e) => setDesc(e.target.value)}
                   rows={3}
@@ -191,6 +191,7 @@ export default function Dashboard() {
                     Servings
                   </Label>
                   <Input
+                  disabled={loading}
                     value={servings}
                     onChange={(e) => setServings(e.target.value)}
                     type="number"
@@ -202,9 +203,9 @@ export default function Dashboard() {
                   <Label className="block text-sm font-medium text-foreground mb-2">
                     Difficulty
                   </Label>
-                  <DropdownMenu>
+                  <DropdownMenu >
                     <DropdownMenuTrigger asChild>
-                      <Button className='' variant={'outline'}>
+                      <Button disabled={loading} className='' variant={'outline'}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="icon icon-tabler icons-tabler-outline icon-tabler-chevron-down"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M6 9l6 6l6 -6" /></svg>
                         {difficulty || 'Select difficulty'}
                       </Button>

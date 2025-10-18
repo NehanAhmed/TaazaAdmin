@@ -10,9 +10,9 @@ interface RecipeData {
     difficulty: string;
     aiResponse: string;
 }
-export const createRecipe = async (DatabaseId: string,  TableId: string, data: RecipeData) => {
+export const createRecipe = async (DatabaseId: string, TableId: string, data: RecipeData) => {
     try {
-        
+
         const response = await tablesDB.createRow({
             databaseId: DatabaseId,
             tableId: TableId,
@@ -29,7 +29,7 @@ export const createRecipe = async (DatabaseId: string,  TableId: string, data: R
         if (response) {
             return response;
         }
-        else{
+        else {
             throw new Error("No response from Appwrite");
         }
     } catch (error) {
@@ -39,25 +39,25 @@ export const createRecipe = async (DatabaseId: string,  TableId: string, data: R
 }
 
 export const getRecipe = async (DatabaseId: string, TableId: string, RecipeId) => {
-  try {
-    const response = await tablesDB.listRows({
-        databaseId: DatabaseId,
-        tableId: TableId,
-        queries: [
-            Query.equal("$id" , RecipeId)
-        ]
-    })
-    if (response) {
-        return response;
+    try {
+        const response = await tablesDB.listRows({
+            databaseId: DatabaseId,
+            tableId: TableId,
+            queries: [
+                Query.equal("$id", RecipeId)
+            ]
+        })
+        if (response) {
+            return response;
+        }
+        else {
+            throw new Error("No response from Appwrite");
+        }
+    } catch (error) {
+        console.error("Error fetching recipe:", error);
+        throw error;
     }
-    else{
-        throw new Error("No response from Appwrite");
-    }
-  } catch (error) {
-    console.error("Error fetching recipe:", error);
-    throw error;
-  }
-};  
+};
 
 export const getAllRecipes = async (DatabaseId: string, TableId: string) => {
     try {
@@ -68,7 +68,7 @@ export const getAllRecipes = async (DatabaseId: string, TableId: string) => {
         if (response) {
             return response;
         }
-        else{
+        else {
             throw new Error("No response from Appwrite");
         }
     } catch (error) {
@@ -87,7 +87,7 @@ export const deleteRecipe = async (DatabaseId: string, TableId: string, RecipeId
         if (response) {
             return response;
         }
-        else{
+        else {
             throw new Error("No response from Appwrite");
         }
     } catch (error) {
@@ -96,3 +96,21 @@ export const deleteRecipe = async (DatabaseId: string, TableId: string, RecipeId
     }
 }
 
+
+export const getAllSavedRecipes = async (DatabaseId: string, TableId: string) => {
+    try {
+        const response = await tablesDB.listRows({
+            databaseId: DatabaseId,
+            tableId: TableId,
+        })
+        if (response) {
+            return response
+        }
+        else {
+            return "No Rows Found"
+        }
+    } catch (error) {
+        console.error("Error Listing Saved Recipes.Try again", error)
+        throw error
+    }
+}

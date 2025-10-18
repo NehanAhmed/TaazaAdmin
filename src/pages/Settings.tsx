@@ -1,26 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Checkbox } from "@/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
+import { Button } from "../components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { Switch } from "../components/ui/switch";
+import { Checkbox } from "../components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "../components/ui/radio-group";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue
-} from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
+} from "../components/ui/select";
+import { Separator } from "../components/ui/separator";
+import { Badge } from "../components/ui/badge";
 import { User, Shield, Bell, CreditCard, Settings, Upload, Plus, Menu, X, SunMoon } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useTheme } from "next-themes";
+import { cn } from "..//lib/utils";
+import { ModeToggle } from "../components/ui/ThemeToggle";
 
 const sidebarItems = [
   { id: "profile", label: "Profile", icon: User },
@@ -117,7 +117,7 @@ const transactions = [
 export function SettingsPage() {
   const [activeSection, setActiveSection] = useState("profile");
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { setTheme } = useTheme()
+
 
   const renderContent = () => {
     switch (activeSection) {
@@ -717,43 +717,7 @@ function ThemeSection() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <RadioGroup value={selectedTheme} onChange={(e)=>setSelectedTheme(e.target.value)} className="space-y-4">
-            <div className="flex items-start space-x-3">
-              <RadioGroupItem onClick={()=> setTheme("light")} value="light" id="light" className="mt-1" />
-              <div className="flex-1">
-                <Label htmlFor="light" className="font-medium">
-                  Light
-                </Label>
-                <p className="text-muted-foreground text-sm">
-                  Bright and clean interface optimized for daytime use
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-3">
-              <RadioGroupItem onClick={()=> setTheme("dark")} value="dark" id="dark" className="mt-1" />
-              <div className="flex-1">
-                <Label htmlFor="dark" className="font-medium">
-                  Dark
-                </Label>
-                <p className="text-muted-foreground text-sm">
-                  Easy on the eyes with reduced brightness for low-light environments
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-3">
-              <RadioGroupItem onClick={()=> setTheme("system")} value="system" id="system" className="mt-1" />
-              <div className="flex-1">
-                <Label htmlFor="system" className="font-medium">
-                  System
-                </Label>
-                <p className="text-muted-foreground text-sm">
-                  Automatically switch between light and dark based on your system preferences
-                </p>
-              </div>
-            </div>
-          </RadioGroup>
+          <ModeToggle />
         </CardContent>
       </Card>
 

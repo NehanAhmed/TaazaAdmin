@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ChefHat, Home, BookOpen, Heart, Clock, Settings, Sparkles, User, LogOut, Search, Plus, Library, ForkKnifeCrossedIcon, Loader } from 'lucide-react';
+import { ChefHat, Home, BookOpen, Heart, Clock, Settings, Sparkles, User, LogOut, Search, Plus, Library, ForkKnifeCrossedIcon, Loader, SaveIcon } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from './ui/button';
 import { Label } from './ui/label';
@@ -7,7 +7,7 @@ import { getAllRecipes } from '../appwrite/dbHelper';
 import { motion } from 'motion/react';
 import { logout } from '../appwrite/auth';
 import { toast } from 'sonner';
-import ThemeToggle from './ui/ThemeToggle';
+// import ThemeToggle from './ui/ThemeToggle';
 
 export default function RecipeSidebar() {
   const [activeItem, setActiveItem] = useState('home');
@@ -46,7 +46,8 @@ export default function RecipeSidebar() {
     { id: 'home', icon: Home, label: 'Home', badge: null, url: '/' },
     { id: 'recipes', icon: BookOpen, label: 'My Recipes', badge: null, url: '/recipes' },
     { id: 'explore', icon: Library, label: 'Explore', badge: '12', url: '/explore' },
-
+    { id: 'saved_recipes', icon: SaveIcon, label: 'Saved Recipes', badge: '12', url: '/saved_recipes' },
+    
   ];
 
   const bottomItems = [
@@ -124,9 +125,9 @@ export default function RecipeSidebar() {
               <Icon className={`w-5 h-5 ${item.highlight && !isActive ? 'text-secondary' : ''} transition-transform group-hover:scale-110`} />
               {!isCollapsed && (
                 <>
-                  <span className="flex-1 text-left font-medium text-sm">{item.label}</span>
+                  <span className="flex-1 text-left font-medium text-sm text-ellipsis">{item.label}</span>
                   {item.badge && (
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${item.highlight
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-semibold text-ellipsis ${item.highlight
                       ? 'bg-secondary text-secondary-foreground'
                       : 'bg-sidebar-accent text-sidebar-foreground'
                       }`}>
@@ -169,16 +170,16 @@ export default function RecipeSidebar() {
           <div>
             <Label className='text-zinc-600'>Your History</Label>
           </div>
-          <div className='ml-2 w-full'>
+          <div className='ml-2 w-full overflow-ellipsis'>
             {recipeLoading ? (
               <p><Loader className='animate-spin' /></p>
             ) : (
               <>
                 {recipes.map((val) => (
-                  <Link key={val.$id} to={`/recipe/${val.$id}`}>
-                    <Button className='flex items-start w-full font-semibold justify-start px-5' variant='outline'>
+                  <Link key={val.$id} to={`/recipe/${val.$id}`} className='text-ellipsis'>
+                    <Button className='max-w-full flex items-start w-full font-semibold justify-start px-5' variant='outline'>
                       <ForkKnifeCrossedIcon />
-                      <span>{val.title}</span>
+                      <span className='-ellipsis'>{val.title}</span>
                     </Button>
                   </Link>
                 ))}
@@ -197,7 +198,7 @@ export default function RecipeSidebar() {
           const isActive = activeItem === item.id;
 
           return (
-            <Link to={item.url}>
+            <Link key={item.id} to={item.url}>
 
               <button
                 key={item.id}
@@ -221,9 +222,7 @@ export default function RecipeSidebar() {
               <LogOut className="w-5 h-5" />
               <span>Sign Out</span>
             </button>
-            <button>
-              <ThemeToggle />
-            </button>
+            
           </>
         )}
       </div>

@@ -14,6 +14,7 @@ import Dashboard from './pages/Dashboard'
 import Recipe from './pages/Recipe'
 import RecipeDetail from './pages/RecipeDetail'
 import RecipeExplorePage from './pages/ExploreRecipes'
+import SavedRecipesPage from './pages/SavedRecpes'
 const App = () => {
     return (
         <main className='w-full h-full'>
@@ -26,6 +27,7 @@ const App = () => {
                     <Route path="/recipes" element={<Recipe />} />
                     <Route path="/recipe/:id" element={<RecipeDetail />} />
                     <Route path='/explore' element={<RecipeExplorePage />}/>
+                    <Route path='/saved_recipes' element={<SavedRecipesPage />}/>
                 </Route>
                 <Route path="/auth/success" element={<Success />} />
                 <Route path="/auth/failure" element={<FailurePage />} />
