@@ -24,7 +24,17 @@ import {
 import { getAllSavedRecipes } from '@/appwrite/dbHelper';
 
 // Sample saved recipes data
-const [SavedRecipes, setsavedRecipes] = useState<Object>([])
+
+
+
+const cuisines = ["All", "Italian", "Thai", "Japanese", "American", "French", "Mexican", "Greek"];
+const difficulties = ["All", "Easy", "Medium", "Hard"];
+const SavedRecipesPage = () => {
+  useEffect(() => {
+    fetchSavedRecipes()
+  }, [])
+  
+  const [SavedRecipesFetched, setsavedRecipes] = useState<Object>([])
 
 const fetchSavedRecipes = async() => {
   const databaseId = import.meta.env.VITE_APPWRITE_DB_ID
@@ -40,17 +50,11 @@ const fetchSavedRecipes = async() => {
     
   }
 }
-
-
-const cuisines = ["All", "Italian", "Thai", "Japanese", "American", "French", "Mexican", "Greek"];
-const difficulties = ["All", "Easy", "Medium", "Hard"];
-
-const SavedRecipesPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCuisine, setSelectedCuisine] = useState('All');
   const [selectedDifficulty, setSelectedDifficulty] = useState('All');
   const [sortBy, setSortBy] = useState('recent');
-  const [recipes, setRecipes] = useState(savedRecipes);
+  const [recipes, setRecipes] = useState(SavedRecipesFetched);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [recipeToDelete, setRecipeToDelete] = useState(null);
 

@@ -70,13 +70,7 @@ export const RecipeCard = ({ recipes = [] ,Loading}) => {
                     <span>Delete Recipe</span>
                     <Trash className="w-4 h-4" />
                   </DropdownMenuItem>
-                  <DropdownMenuItem
-
-                    className="text-center flex justify-between  cursor-pointer"
-                  >
-                    <span>Bookmark</span>
-                    <Bookmark className="w-4 h-4" />
-                  </DropdownMenuItem>
+                 
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -141,16 +135,12 @@ export const RecipeCard = ({ recipes = [] ,Loading}) => {
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                   <Link to={`/recipe/${recipe.$id}`}>
 
-                    <Button className="font-semibold w-80 bg-primary text-primary-foreground hover:opacity-90 transition-opacity">
+                    <Button className="font-semibold w-95 bg-primary text-primary-foreground hover:opacity-90 transition-opacity">
                       View Recipe
                     </Button>
                   </Link>
                 </motion.div>
-                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Button className="w-full bg-primary text-primary-foreground hover:opacity-90 transition-opacity">
-                    <Bookmark />
-                  </Button>
-                </motion.div>
+              
               </div>
             </div>
           </motion.div>

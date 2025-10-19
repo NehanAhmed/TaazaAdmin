@@ -38,7 +38,7 @@ export const createRecipe = async (DatabaseId: string, TableId: string, data: Re
     }
 }
 
-export const getRecipe = async (DatabaseId: string, TableId: string, RecipeId) => {
+export const getRecipe = async (DatabaseId: string, TableId: string, RecipeId:string) => {
     try {
         const response = await tablesDB.listRows({
             databaseId: DatabaseId,
@@ -112,5 +112,28 @@ export const getAllSavedRecipes = async (DatabaseId: string, TableId: string) =>
     } catch (error) {
         console.error("Error Listing Saved Recipes.Try again", error)
         throw error
+    }
+}
+
+
+export const insertASavedRecipe = async (DatabaseId: string, TableId: string, recipeId: string, userId: string) => {
+    try {
+        const response = await tablesDB.createRow({
+            databaseId: DatabaseId,
+            tableId: TableId,
+            rowId: ID.unique(),
+            data: {
+                "user_id": userId,
+                "recipe_id": recipeId
+            }
+        })
+        if (response) {
+            return response;
+        } else {
+            throw new Error("No response from Appwrite");
+        }
+    } catch (error) {
+        console.error("Error inserting saved recipe:", error);
+        throw error;
     }
 }

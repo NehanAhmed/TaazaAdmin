@@ -19,7 +19,7 @@ import {
     SheetTitle,
     SheetTrigger,
 } from '@/components/ui/sheet';
-import { getAllRecipes } from '../appwrite/dbHelper';
+import { getAllRecipes, insertASavedRecipe } from '../appwrite/dbHelper';
 import { Link } from 'react-router';
 
 // Sample recipe data
@@ -160,7 +160,17 @@ const RecipeExplorePage = () => {
     useEffect(() => {
         fetchAllRecipes()
     }, [])
-
+    const handleSaveRecipe = async(id) => {
+        const databaseId = import.meta.env.VITE_APPWRITE_DB_ID;
+        const savedRecipesTabledId = import.meta.env.VITE_APPWRITE_SAVED_RECIPES_TABLE_ID;
+        const userId = localStorage.getItem("user_id");
+        const recipeId = id;
+        try {
+            await insertASavedRecipe(databaseId,savedRecipesTabledId,userId,recipeId)
+        } catch (error) {
+            
+        }
+    }
     const fetchAllRecipes = async () => {
         const databaseId = import.meta.env.VITE_APPWRITE_DB_ID
         const recipeTableId = import.meta.env.VITE_APPWRITE_RECIPES_TABLE_ID
@@ -476,7 +486,7 @@ const RecipeExplorePage = () => {
                                                 </Link>
                                             </motion.div>
                                             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                                                <Button className="w-full bg-primary text-primary-foreground hover:opacity-90 transition-opacity">
+                                                <Button onClick={handleSaveRecipe(recipe.$id)} className="w-full bg-primary text-primary-foreground hover:opacity-90 transition-opacity">
                                                     <Bookmark />
                                                 </Button>
                                             </motion.div>

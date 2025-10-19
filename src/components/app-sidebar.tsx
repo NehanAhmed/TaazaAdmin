@@ -25,7 +25,8 @@ export default function RecipeSidebar() {
         setTimeout(() => navigate('/login'), 3000)
       })
     } catch (error) {
-
+      console.error("error logging out",error)
+      throw error
     }
   }
   const getRecipeTitle = async () => {
@@ -47,7 +48,7 @@ export default function RecipeSidebar() {
     { id: 'recipes', icon: BookOpen, label: 'My Recipes', badge: null, url: '/recipes' },
     { id: 'explore', icon: Library, label: 'Explore', badge: '12', url: '/explore' },
     { id: 'saved_recipes', icon: SaveIcon, label: 'Saved Recipes', badge: '12', url: '/saved_recipes' },
-    
+
   ];
 
   const bottomItems = [
@@ -55,6 +56,7 @@ export default function RecipeSidebar() {
 
   ];
 
+  
   return (
     <div
       className={`${isCollapsed ? 'w-20' : 'w-72'
@@ -218,11 +220,11 @@ export default function RecipeSidebar() {
         {!isCollapsed && (
           <>
 
-            <button className="mt-3 w-full flex items-center gap-3 px-4 py-3 rounded-lg text-destructive hover:bg-destructive/10 transition-all text-sm font-medium">
+            <button onClick={handleLogout} className="mt-3 w-full flex items-center gap-3 px-4 py-3 rounded-lg text-destructive hover:bg-destructive/10 transition-all text-sm font-medium">
               <LogOut className="w-5 h-5" />
               <span>Sign Out</span>
             </button>
-            
+
           </>
         )}
       </div>

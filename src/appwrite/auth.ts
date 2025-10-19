@@ -19,12 +19,14 @@ async function createAccount(email: string, password: string, name: string): Pro
     }
 }
 
-async function login(email: string, password: string): Promise<void> {
+async function login(email: string, password: string): Promise<Object> {
     try {
-        await account.createEmailPasswordSession({
+        const response = await account.createEmailPasswordSession({
             email,
             password
         })
+        return response;
+
     } catch (error) {
         throw new Error("Failed to login: " + error);
     }
@@ -43,6 +45,6 @@ async function logout(): Promise<void> {
         });
     } catch (error) {
         throw new Error("Failed to logout: " + error);
-    }   
+    }
 }
 export { createAccount, login, getCurrentUser, logout };
