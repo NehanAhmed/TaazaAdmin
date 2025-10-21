@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Search, X, Clock, Users, ChefHat, Flame, Heart, Filter, SlidersHorizontal, Bookmark } from 'lucide-react';
+import { Search, X, Clock, Users, ChefHat, Flame, Heart, Filter, SlidersHorizontal, Bookmark, Loader } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/sheet';
 import { getAllRecipes, insertASavedRecipe } from '../appwrite/dbHelper';
 import { Link } from 'react-router';
+import { toast } from 'sonner';
 
 // Sample recipe data
 const recipes = [
@@ -154,36 +155,51 @@ const RecipeExplorePage = () => {
     const [selectedCuisine, setSelectedCuisine] = useState('All');
     const [sortBy, setSortBy] = useState('title');
     const [favorites, setFavorites] = useState(new Set());
-
-
+    const [loading, setIsloading] = useState(false)
+    const [SavedRecipesData, setSavedRecipesData] = useState<Recipe[]>([])
     const [Recipes, setRecipes] = useState<Recipe[]>([]);
     useEffect(() => {
         fetchAllRecipes()
     }, [])
-    const handleSaveRecipe = async(id) => {
+    const handleSaveRecipe = async (id) => {
         const databaseId = import.meta.env.VITE_APPWRITE_DB_ID;
         const savedRecipesTabledId = import.meta.env.VITE_APPWRITE_SAVED_RECIPES_TABLE_ID;
         const userId = localStorage.getItem("user_id");
-        const recipeId = id;
+
+
+        const recipeId = id.$id;
+        // console.log(recipeId);
+
         try {
-            await insertASavedRecipe(databaseId,savedRecipesTabledId,userId,recipeId)
+            await insertASavedRecipe(databaseId, savedRecipesTabledId, recipeId, userId).then((res) => {
+                toast.success("Successfully Bookmarked!")
+                console.log(res);
+                const savedRecipe = res
+                setSavedRecipesData(savedRecipe as unknown as Recipe[])
+
+            })
+
         } catch (error) {
-            
+
         }
     }
     const fetchAllRecipes = async () => {
+        setIsloading(true)
         const databaseId = import.meta.env.VITE_APPWRITE_DB_ID
         const recipeTableId = import.meta.env.VITE_APPWRITE_RECIPES_TABLE_ID
 
         try {
             await getAllRecipes(databaseId, recipeTableId).then((res) => {
                 const recipesData = res.rows;
-                console.log(recipesData);
+
 
                 setRecipes(recipesData as unknown as Recipe[])
+
+                setIsloading(false)
             })
         } catch (error) {
-
+            console.error("Error fetching Recipes from DB", error)
+            throw error;
         }
     }
     // Filter and sort recipes
@@ -343,7 +359,7 @@ const RecipeExplorePage = () => {
                                     </SheetDescription>
                                 </SheetHeader>
                                 <div className="p-4 mt-6 space-y-6">
-                                    {/* Difficulty Filter */}
+                                    {/* Difficulty Filt<er */}
                                     <div>
                                         <label className="text-sm font-medium text-foreground mb-2 block">
                                             Difficulty Level
@@ -405,121 +421,133 @@ const RecipeExplorePage = () => {
 
                 {/* Recipe Grid */}
                 <AnimatePresence mode="popLayout">
-                    {filteredRecipes.length > 0 ? (
-                        <motion.div
-                            layout
-                            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-                        >
-                            {Recipes.map((recipe, index) => (
-                                <motion.div
-                                    key={recipe.$id}
-                                  
-                                    transition={{ duration: 0.3, delay: index * 0.05 }}
-                                    className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-lg transition-all group relative"
-                                    whileHover={{ y: -4 }}
-                                >
-                                    {/* Favorite Button */}
-                                    <motion.button
-                                        whileHover={{ scale: 1.1 }}
-                                        whileTap={{ scale: 0.9 }}
-                                        onClick={() => toggleFavorite(recipe.$id)}
-                                        className="absolute top-3 right-3 z-10 bg-background/80 backdrop-blur-sm p-2 rounded-full border border-border hover:bg-background transition-colors"
-                                    >
-                                        <Heart
-                                            className={`w-5 h-5 transition-colors ${favorites.has(recipe.$id)
-                                                ? 'fill-red-500 text-red-500'
-                                                : 'text-muted-foreground'
-                                                }`}
-                                        />
-                                    </motion.button>
+                    {loading ? (
+                        <div className='w-full h-full m-auto'><Loader className='animate-spin m-auto my-50' /></div>
 
-                                    {/* Recipe Image */}
-                                    <div className="bg-muted h-48 flex items-center justify-center text-8xl border-b border-border relative overflow-hidden">
-                                        <motion.div
-                                            whileHover={{ scale: 1.1 }}
-                                            transition={{ duration: 0.3 }}
-                                        >
-                                            <img src="/Images/random_photos(1).jpg" alt="image of rendom thing" />
-                                        </motion.div>
-                                    </div>
-
-                                    {/* Recipe Content */}
-                                    <div className="p-5">
-                                        <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
-                                            {recipe.title}
-                                        </h3>
-                                        <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
-                                            {recipe.description}
-                                        </p>
-
-                                        {/* Recipe Meta */}
-                                        <div className="flex items-center gap-4 mb-4 text-sm">
-                                            <motion.div
-                                                whileHover={{ scale: 1.05 }}
-                                                className="flex items-center gap-1.5 text-muted-foreground"
-                                            >
-                                                <Clock className="w-4 h-4" />
-                                                <span>1min</span>
-                                            </motion.div>
-                                            <motion.div
-                                                whileHover={{ scale: 1.05 }}
-                                                className="flex items-center gap-1.5 text-muted-foreground"
-                                            >
-                                                <Users className="w-4 h-4" />
-                                                <span>{recipe.serving}</span>
-                                            </motion.div>
-                                            <div className="flex-1" />
-                                            <span className="px-2.5 py-1 bg-primary/10 text-primary text-xs font-medium rounded-full">
-                                                {recipe.difficulty}
-                                            </span>
-                                        </div>
-
-                                        <div className='flex gap-2'>
-
-                                            {/* Action Button */}
-                                            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                                                <Link to={`/recipe/${recipe.$id}`}>
-                                                
-                                                <Button className="w-80 bg-primary text-primary-foreground hover:opacity-90 transition-opacity">
-                                                    View Recipe
-                                                </Button>
-                                                </Link>
-                                            </motion.div>
-                                            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                                                <Button onClick={handleSaveRecipe(recipe.$id)} className="w-full bg-primary text-primary-foreground hover:opacity-90 transition-opacity">
-                                                    <Bookmark />
-                                                </Button>
-                                            </motion.div>
-                                        </div>
-                                    </div>
-                                </motion.div>
-                            ))}
-                        </motion.div>
                     ) : (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="text-center py-20"
-                        >
-                            <motion.div
-                                animate={{ rotate: [0, 10, -10, 0] }}
-                                transition={{ duration: 2, repeat: Infinity }}
-                            >
-                                <ChefHat className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-                            </motion.div>
-                            <h3 className="text-xl font-semibold text-foreground mb-2">No recipes found</h3>
-                            <p className="text-muted-foreground mb-4">
-                                Try adjusting your search or filters
-                            </p>
-                            <Button onClick={clearFilters} variant="outline" className="border-border">
-                                Clear All Filters
-                            </Button>
-                        </motion.div>
+
+                        <>
+                            {filteredRecipes.length > 0 ? (
+                                <motion.div
+                                    layout
+                                    className="transition grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+
+                                >
+
+                                    {Recipes.map((recipe, index) => (
+                                        <motion.div
+                                            key={recipe.$id}
+
+                                            transition={{ duration: 0.3, delay: index * 0.05 }}
+                                            className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-lg transition-all group relative"
+                                            whileHover={{ y: -4 }}
+                                        >
+                                            {/* Favorite Button */}
+                                            <motion.button
+                                                whileHover={{ scale: 1.1 }}
+                                                whileTap={{ scale: 0.9 }}
+                                                onClick={() => toggleFavorite(recipe.$id)}
+                                                className="absolute top-3 right-3 z-10 bg-background/80 backdrop-blur-sm p-2 rounded-full border border-border hover:bg-background transition-colors"
+                                            >
+                                                <Heart
+                                                    className={`w-5 h-5 transition-colors ${favorites.has(recipe.$id)
+                                                        ? 'fill-red-500 text-red-500'
+                                                        : 'text-muted-foreground'
+                                                        }`}
+                                                />
+                                            </motion.button>
+
+                                            {/* Recipe Image */}
+                                            <div className="bg-muted h-48 flex items-center justify-center text-8xl border-b border-border relative overflow-hidden">
+                                                <motion.div
+                                                    whileHover={{ scale: 1.1 }}
+                                                    transition={{ duration: 0.3 }}
+                                                >
+                                                    <img src="/Images/random_photos(1).jpg" alt="image of rendom thing" />
+                                                </motion.div>
+                                            </div>
+
+                                            {/* Recipe Content */}
+                                            <div className="p-5">
+                                                <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
+                                                    {recipe.title}
+                                                </h3>
+                                                <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
+                                                    {recipe.description}
+                                                </p>
+
+                                                {/* Recipe Meta */}
+                                                <div className="flex items-center gap-4 mb-4 text-sm">
+                                                    <motion.div
+                                                        whileHover={{ scale: 1.05 }}
+                                                        className="flex items-center gap-1.5 text-muted-foreground"
+                                                    >
+                                                        <Clock className="w-4 h-4" />
+                                                        <span>1min</span>
+                                                    </motion.div>
+                                                    <motion.div
+                                                        whileHover={{ scale: 1.05 }}
+                                                        className="flex items-center gap-1.5 text-muted-foreground"
+                                                    >
+                                                        <Users className="w-4 h-4" />
+                                                        <span>{recipe.serving}</span>
+                                                    </motion.div>
+                                                    <div className="flex-1" />
+                                                    <span className="px-2.5 py-1 bg-primary/10 text-primary text-xs font-medium rounded-full">
+                                                        {recipe.difficulty}
+                                                    </span>
+                                                </div>
+
+                                                <div className='flex gap-2'>
+
+                                                    {/* Action Button */}
+                                                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                                                        <Link to={`/recipe/${recipe.$id}`}>
+
+                                                            <Button className="w-80 bg-primary text-primary-foreground hover:opacity-90 transition-opacity">
+                                                                View Recipe
+                                                            </Button>
+                                                        </Link>
+                                                    </motion.div>
+                                                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                                                        <Button onClick={() => handleSaveRecipe(recipe)} className="w-full bg-primary text-primary-foreground hover:opacity-90 transition-opacity">
+                                                            <Bookmark className='' fill={SavedRecipesData.some(saved => saved.$id === recipe.$id)}
+                                                            />
+                                                        </Button>
+                                                    </motion.div>
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    ))}
+                                </motion.div>
+                            ) : (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className="text-center py-20"
+                                >
+                                    <motion.div
+                                        animate={{ rotate: [0, 10, -10, 0] }}
+                                        transition={{ duration: 2, repeat: Infinity }}
+                                    >
+                                        <ChefHat className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                                    </motion.div>
+                                    <h3 className="text-xl font-semibold text-foreground mb-2">No recipes found</h3>
+                                    <p className="text-muted-foreground mb-4">
+                                        Try adjusting your search or filters
+                                    </p>
+                                    <Button onClick={clearFilters} variant="outline" className="border-border">
+                                        Clear All Filters
+                                    </Button>
+                                </motion.div>
+                            )}
+                        </>
                     )}
+
                 </AnimatePresence>
             </div>
-        </div>
+        </div >
     );
 }
 

@@ -38,7 +38,7 @@ export const createRecipe = async (DatabaseId: string, TableId: string, data: Re
     }
 }
 
-export const getRecipe = async (DatabaseId: string, TableId: string, RecipeId:string) => {
+export const getRecipe = async (DatabaseId: string, TableId: string, RecipeId: string) => {
     try {
         const response = await tablesDB.listRows({
             databaseId: DatabaseId,
